@@ -1,0 +1,191 @@
+[
+    {
+        "id": "1",
+        "governorate_name_ar": "القاهرة",
+        "governorate_name_en": "Cairo",
+        "lat": 30.0444,
+        "long": 31.2357
+    },
+    {
+        "id": "2",
+        "governorate_name_ar": "الجيزة",
+        "governorate_name_en": "Giza",
+        "lat": 30.0131,
+        "long": 31.2089
+    },
+    {
+        "id": "3",
+        "governorate_name_ar": "الأسكندرية",
+        "governorate_name_en": "Alexandria",
+        "lat": 31.2001,
+        "long": 29.9187
+    },
+    {
+        "id": "4",
+        "governorate_name_ar": "الدقهلية",
+        "governorate_name_en": "Dakahlia",
+        "lat": 31.1656,
+        "long": 31.4913
+    },
+    {
+        "id": "5",
+        "governorate_name_ar": "البحر الأحمر",
+        "governorate_name_en": "Red Sea",
+        "lat": 20.2802,
+        "long": 38.5126
+    },
+    {
+        "id": "6",
+        "governorate_name_ar": "البحيرة",
+        "governorate_name_en": "Beheira",
+        "lat": 30.8481,
+        "long": 30.3436
+    },
+    {
+        "id": "7",
+        "governorate_name_ar": "الفيوم",
+        "governorate_name_en": "Fayoum",
+        "lat": 29.3084,
+        "long": 30.8428
+    },
+    {
+        "id": "8",
+        "governorate_name_ar": "الغربية",
+        "governorate_name_en": "Gharbiya",
+        "lat": 30.8754,
+        "long": 31.0335
+    },
+    {
+        "id": "9",
+        "governorate_name_ar": "الإسماعلية",
+        "governorate_name_en": "Ismailia",
+        "lat": 30.5965,
+        "long": 32.2715
+    },
+    {
+        "id": "10",
+        "governorate_name_ar": "المنوفية",
+        "governorate_name_en": "Menofia",
+        "lat": 30.5972,
+        "long": 30.9876
+    },
+    {
+        "id": "11",
+        "governorate_name_ar": "المنيا",
+        "governorate_name_en": "Minya",
+        "lat": 28.0871,
+        "long": 30.7618
+    },
+    {
+        "id": "12",
+        "governorate_name_ar": "القليوبية",
+        "governorate_name_en": "Qaliubiya",
+        "lat": 30.3292,
+        "long": 31.2168
+    },
+    {
+        "id": "13",
+        "governorate_name_ar": "الوادي الجديد",
+        "governorate_name_en": "New Valley",
+        "lat": 24.5456,
+        "long": 27.1735
+    },
+    {
+        "id": "14",
+        "governorate_name_ar": "السويس",
+        "governorate_name_en": "Suez",
+        "lat": 29.9668,
+        "long": 32.5498
+    },
+    {
+        "id": "15",
+        "governorate_name_ar": "اسوان",
+        "governorate_name_en": "Aswan",
+        "lat": 24.0889,
+        "long": 32.8998
+    },
+    {
+        "id": "16",
+        "governorate_name_ar": "اسيوط",
+        "governorate_name_en": "Assiut",
+        "lat": 27.1783,
+        "long": 31.1859
+    },
+    {
+        "id": "17",
+        "governorate_name_ar": "بني سويف",
+        "governorate_name_en": "Beni Suef",
+        "lat": 29.0661,
+        "long": 31.0994
+    },
+    {
+        "id": "18",
+        "governorate_name_ar": "بورسعيد",
+        "governorate_name_en": "Port Said",
+        "lat": 31.2653,
+        "long": 32.3019
+    },
+    {
+        "id": "19",
+        "governorate_name_ar": "دمياط",
+        "governorate_name_en": "Damietta",
+        "lat": 31.4175,
+        "long": 31.8144
+    },
+    {
+        "id": "20",
+        "governorate_name_ar": "الشرقية",
+        "governorate_name_en": "Sharkia",
+        "lat": 30.7327,
+        "long": 31.7195
+    },
+    {
+        "id": "21",
+        "governorate_name_ar": "جنوب سيناء",
+        "governorate_name_en": "South Sinai",
+        "lat": 29.3102,
+        "long": 34.1532
+    },
+    {
+        "id": "22",
+        "governorate_name_ar": "كفر الشيخ",
+        "governorate_name_en": "Kafr Al sheikh",
+        "lat": 31.1107,
+        "long": 30.9388
+    },
+    {
+        "id": "23",
+        "governorate_name_ar": "مطروح",
+        "governorate_name_en": "Matrouh",
+        "lat": 31.3543,
+        "long": 27.2373
+    },
+    {
+        "id": "24",
+        "governorate_name_ar": "الأقصر",
+        "governorate_name_en": "Luxor",
+        "lat": 25.6872,
+        "long": 32.6396
+    },
+    {
+        "id": "25",
+        "governorate_name_ar": "قنا",
+        "governorate_name_en": "Qena",
+        "lat": 26.1551,
+        "long": 32.7160
+    },
+    {
+        "id": "26",
+        "governorate_name_ar": "شمال سيناء",
+        "governorate_name_en": "North Sinai",
+        "lat": 30.2824,
+        "long": 33.6176
+    },
+    {
+        "id": "27",
+        "governorate_name_ar": "سوهاج",
+        "governorate_name_en": "Sohag",
+        "lat": 26.5591,
+        "long": 31.6957
+    }
+]

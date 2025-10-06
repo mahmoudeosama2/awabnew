@@ -1,0 +1,118 @@
+name: awab
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.2
+  intl: ^0.20.2
+  curved_navigation_bar: ^1.0.3
+  http: ^0.13.5
+  provider: ^6.0.3
+  audioplayers: ^6.5.1
+  shared_preferences: ^2.0.15
+  hijri: ^3.0.0
+
+  geolocator: ^13.0.4
+  flutter_qiblah: ^3.1.0+1
+  flutter_svg: ^2.0.7
+  awesome_dialog: ^3.0.2
+  adhan: ^2.0.0-nullsafety.2
+  simple_speed_dial: ^0.1.7
+  fluttertoast: ^9.0.0
+  location: ^8.0.1
+  just_audio: ^0.10.5
+  audio_video_progress_bar: ^2.0.3
+  just_audio_background: ^0.0.1-beta.10
+  rxdart: ^0.27.7
+  flutter_launcher_icons: ^0.14.4
+  arabic_numbers: ^1.0.0
+  quran: ^1.2.2
+  rename: ^3.1.0
+  in_app_review: ^2.0.8
+  workmanager: ^0.9.0+3
+  flutter_local_notifications: ^18.0.1
+  flutter_background_service: ^5.0.1
+  flutter_zoom_drawer: ^3.2.0
+  app_settings: ^6.1.1
+  permission_handler: ^12.0.1
+  activity_ring: ^0.3.0
+  dio: ^5.4.0
+
+  siri_wave: ^2.0.0+1
+  dropdown_button2: ^2.3.9
+  share_plus: ^12.0.0
+  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter_icons:
+  android: true
+  image_path: "asset/images/recite.png"
+
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - asset/json/complete_quran.json
+    - asset/json/quranreader.json
+    - asset/images/Mosque.png
+    - asset/images/
+    - asset/icons/
+    
+
+  fonts:
+
+    - family: me_quran
+      fonts:
+        - asset: asset/fonts/me_quran.ttf
+
+    - family: Amiri
+      fonts:
+        - asset: asset/fonts/Amiri/Amiri-Bold.ttf
+        - asset: asset/fonts/Amiri/Amiri-BoldItalic.ttf
+        - asset: asset/fonts/Amiri/Amiri-Italic.ttf
+        - asset: asset/fonts/Amiri/Amiri-Regular.ttf
+
+    - family: Scheherazade
+      fonts:
+        - asset: asset/fonts/Scheherazade/ScheherazadeNew-Bold.ttf
+        - asset: asset/fonts/Scheherazade/ScheherazadeNew-Medium.ttf
+        - asset: asset/fonts/Scheherazade/ScheherazadeNew-Regular.ttf
+        - asset: asset/fonts/Scheherazade/ScheherazadeNew-SemiBold.ttf
+
+
