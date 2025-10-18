@@ -9,7 +9,7 @@ bool status = false;
 bool tempThen = false;
 bool? chngcoloror;
 bool? isplayedfm;
-removebasmal(String word) {
+String? removebasmal(String word) {
   String result = word.replaceAll("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "");
   result = word.replaceAll("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "");
   if (result.length < 2) {
@@ -32,7 +32,7 @@ Future getaudio(url) async {
   //     .then((value) => print("then completeeeeeeeeeeeeeeeeeee"));
 }
 
-chngcol() {
+void chngcol() {
   chngcoloror = false;
 }
 
@@ -51,7 +51,7 @@ Future pauseaudio() async {
   await player.pause();
 }
 
-removetachkil(var str) {
+dynamic removetachkil(var str) {
   List tachkil = ['ِ', 'ُ', 'ٓ', 'ٰ', 'ْ', 'ٌ', 'ٍ', 'ً', 'ّ', 'َ', ' ّ'];
 
   for (var element in tachkil) {
@@ -60,17 +60,17 @@ removetachkil(var str) {
   return str;
 }
 
-setprefs(String key, String value) async {
+Future<void> setprefs(String key, String value) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setString(key, value);
 }
 
-setprefsbool(String key, bool value) async {
+Future<void> setprefsbool(String key, bool value) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setBool(key, value);
 }
 
-getprefs(String key) async {
+Future<bool?>? getprefs(String key) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   if (prefs.containsKey(key)) {
     return prefs.getBool(key);

@@ -20,7 +20,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   TimeOfDay _morningAzkarTime = const TimeOfDay(hour: 7, minute: 0);
   TimeOfDay _eveningAzkarTime = const TimeOfDay(hour: 18, minute: 0);
 
-  Map<String, bool> _prayerAdhanSettings = {
+  final Map<String, bool> _prayerAdhanSettings = {
     'الفجر': true,
     'الظهر': true,
     'العصر': true,
@@ -262,7 +262,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                       _quranReminderEnabled = value;
                     });
                   },
-                  activeColor: Theme.of(context).primaryColor,
+                  activeThumbColor: Theme.of(context).primaryColor,
                 ),
               ],
             ),
@@ -389,7 +389,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             Switch(
               value: enabled,
               onChanged: onChanged,
-              activeColor: color,
+              activeThumbColor: color,
             ),
           ],
         ),
@@ -464,7 +464,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                       _adhanEnabled = value;
                     });
                   },
-                  activeColor: Colors.green,
+                  activeThumbColor: Colors.green,
                 ),
               ],
             ),

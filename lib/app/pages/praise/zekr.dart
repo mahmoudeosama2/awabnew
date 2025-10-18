@@ -1,4 +1,3 @@
-import 'package:awab/app/pages/quran/surah/view_surah.dart';
 import 'package:arabic_numbers/arabic_numbers.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';

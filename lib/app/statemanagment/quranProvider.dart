@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:flutter/services.dart%20';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -85,7 +85,7 @@ class Quran with ChangeNotifier {
     return audioSourceList!;
   }
 
-  geturl(number) {
+  String? geturl(number) {
     url =
         "https://download.quranicaudio.com/quran/$relvaationreader${correctindex(number)}.mp3";
 
@@ -109,8 +109,8 @@ class Quran with ChangeNotifier {
   void downloadFile(quranName, quranNumber, index) async {
     Dio dio = Dio();
     try {
-      await dio.download(geturl(114),
-          "/storage/emulated/0/Awab/Sounds/${relvaationreader}${quranName}.mp3",
+      await dio.download(geturl(114) ?? "",
+          "/storage/emulated/0/Awab/Sounds/$relvaationreader$quranName.mp3",
           onReceiveProgress: (receivedBytes, totalBytes) {
         if (totalBytes != -1) {
           isDownloading[indexQari][relvaationreader]![index]['progress'] =
@@ -200,7 +200,7 @@ class Quran with ChangeNotifier {
   //     isDownloading.add({quranreader[i].relativePath!: temp});
   //   }
   // }
-  listQurasnsFilled() {
+  void listQurasnsFilled() {
     isDownloading = [];
     for (int x = 0; x < 114; x++) {
       Map<String, double> tempMap = {
@@ -214,7 +214,7 @@ class Quran with ChangeNotifier {
     }
   }
 
-  listClear() {
+  void listClear() {
     temp = [];
     for (int x = 0; x < 114; x++) {
       temp.add({surahs[x].name.toString(): 0});
@@ -225,12 +225,12 @@ class Quran with ChangeNotifier {
     isDownloading[indexQari][relvaationreader] = temp;
   }
 
-  setdata() {
+  void setdata() {
     isDownloading[1]
         ["abdulmun3im_abdulmubdi2/"]![1] = {"سُورَةُ البَقَرَةِ": 2};
   }
 
-  printdata() {
+  void printdata() {
     // isDownloading[1]["abdulmun3im_abdulmubdi2/"]![0]["سُورَةُ ٱلْفَاتِحَةِ"] =
     //     5;
     print("/////////////////////////////////////////////");

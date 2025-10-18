@@ -16,7 +16,7 @@ void addPraisesName(String zekr) async {
   }
 }
 
-addPraise(String zekr) async {
+Future<void> addPraise(String zekr) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   List<String> alreadyExistingPraises = [];
   if (prefs.getStringList("praises") == null) {
@@ -33,7 +33,7 @@ addPraise(String zekr) async {
   }
 }
 
-countpraise(String zekr) async {
+Future<List<String>> countpraise(String zekr) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   List<String> praise = [];
   praise = prefs.getStringList(zekr)!;
@@ -52,7 +52,7 @@ void deletepraise(String key) async {
   await prefs.remove(key);
 }
 
-showpraises(zekr) async {
+Future<List<String>?>? showpraises(zekr) async {
   List<String> praises = [];
   SharedPreferences prefs = await SharedPreferences.getInstance();
   // ignore: unnecessary_null_comparison
@@ -63,7 +63,7 @@ showpraises(zekr) async {
   return praises;
 }
 
-addStringPrefs(String key, String value) async {
+Future<void> addStringPrefs(String key, String value) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   if (prefs.getString(key) == false) {
     prefs.setString(key, value);
@@ -72,7 +72,7 @@ addStringPrefs(String key, String value) async {
   }
 }
 
-setBoolPrefs(String key, bool value) async {
+Future<void> setBoolPrefs(String key, bool value) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   if (prefs.containsKey(key) == false) {
     prefs.setBool(key, value);
@@ -81,7 +81,7 @@ setBoolPrefs(String key, bool value) async {
   }
 }
 
-getBoolPrefs(String key) async {
+Future<bool?> getBoolPrefs(String key) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   if (prefs.getBool(key) == true) {
     print("in function trueeeeeeeeeeeeeeeeeeeeee");
@@ -93,7 +93,7 @@ getBoolPrefs(String key) async {
   }
 }
 
-changeBoolPrefs(String key, bool value) async {
+Future<void> changeBoolPrefs(String key, bool value) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setBool(key, value);
 }

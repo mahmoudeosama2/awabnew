@@ -13,7 +13,7 @@ class Prayertime {
     return long!;
   }
 
-  getusercurrentloaction() async {
+  Future<Position> getusercurrentloaction() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     lat = position.latitude;

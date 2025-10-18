@@ -25,7 +25,7 @@ class AudioPlayerScreen extends StatefulWidget {
 class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   late AudioPlayer _audioPlayer;
 
-  playListAudioSource() {
+  void playListAudioSource() {
     playList = [];
     playList = ConcatenatingAudioSource(
       children: widget.audioSourceList as List<AudioSource>,
@@ -58,7 +58,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
     });
   }
 
-  disbose() {
+  void disbose() {
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -279,7 +279,7 @@ class PositionData {
   final Duration duration;
 }
 
-correctindex(int? index) {
+String? correctindex(int? index) {
   if (index! < 10) {
     return "00$index";
   } else if (index < 100) {

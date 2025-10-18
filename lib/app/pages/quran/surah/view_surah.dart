@@ -325,7 +325,7 @@ class _ViewSurahtate extends State<ViewSurah> {
   }
 
   ScrollController scrollController = ScrollController();
-  totalayat() {
+  void totalayat() {
     textspan = [];
     bool test = false;
     removebasmal(ayahs[0].text!) == null ? test = true : test = false;

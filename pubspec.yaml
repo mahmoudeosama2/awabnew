@@ -78,7 +78,6 @@ dependencies:
   fl_chart: ^0.70.1
   android_alarm_manager_plus: ^4.0.4
   shimmer: ^3.0.0
-  lottie: ^3.1.0
   syncfusion_flutter_gauges: ^28.1.35
   calendar_date_picker2: ^1.1.9
   sqflite: ^2.4.1
@@ -105,12 +104,10 @@ flutter:
   uses-material-design: true
 
   assets:
-    - asset/json/complete_quran.json
-    - asset/json/quranreader.json
-    - asset/images/Mosque.png
+    - asset/json/    
     - asset/images/
     - asset/icons/
-    
+    - asset/fonts/    
 
   fonts:
 

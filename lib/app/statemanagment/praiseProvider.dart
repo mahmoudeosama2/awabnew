@@ -163,7 +163,7 @@ class Praise with ChangeNotifier {
     "بِاسْمِكَ رَبِّي وَضَعْـت جَنْبي، وَبِكَ أَرْفَعـه، فَإِن أَمْسَـكْتَ نَفْسي فارْحَمْها",
   ];
 
-  count(String zekr, int index) {
+  void count(String zekr, int index) {
     total = total! + 1;
     num = num + 1;
     praiseslist![index][1] = (int.parse(praiseslist![index][1]) + 1).toString();
@@ -171,7 +171,7 @@ class Praise with ChangeNotifier {
     notifyListeners();
   }
 
-  countpraise2(String zekr) async {
+  Future<List<String>> countpraise2(String zekr) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int temp;
     temp = 0;
@@ -184,7 +184,7 @@ class Praise with ChangeNotifier {
     return praise;
   }
 
-  count2(String zekr, int index, bool islocal, ismorn) {
+  void count2(String zekr, int index, bool islocal, ismorn) {
     total = total! + 1;
     num = num + 1;
     if (islocal == false) {
@@ -219,38 +219,38 @@ class Praise with ChangeNotifier {
     //}
   }
 
-  countPraiseLocal(String zekr) async {
+  Future<void> countPraiseLocal(String zekr) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int temp = 0;
-    temp = await prefs.getInt(zekr)!;
+    temp = prefs.getInt(zekr)!;
     await prefs.setInt(zekr, temp + 1);
-    print(await prefs.getInt(zekr));
+    print(prefs.getInt(zekr));
     notifyListeners();
   }
 
   void addPraisesName(String zekr) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> praises = [];
-    if (await prefs.getStringList("praises") == null) {
+    if (prefs.getStringList("praises") == null) {
       praises.add(zekr);
       await prefs.setStringList("praises", praises);
     } else {
-      praises = await prefs.getStringList("praises")!;
+      praises = prefs.getStringList("praises")!;
       praises.add(zekr);
       await prefs.remove("praises");
       await prefs.setStringList("praises", praises);
     }
   }
 
-  addPraise(String zekr) async {
+  Future<void> addPraise(String zekr) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> alreadyExistingPraises = [];
-    if (await prefs.containsKey("praises") == false) {
+    if (prefs.containsKey("praises") == false) {
       addPraisesName(zekr);
       praiseslist?.add([zekr, "0"]);
       await prefs.setStringList(zekr, [zekr, "0"]);
     } else {
-      alreadyExistingPraises = await prefs.getStringList("praises")!;
+      alreadyExistingPraises = prefs.getStringList("praises")!;
       if (alreadyExistingPraises.contains(zekr)) {
         return print(alreadyexis);
       } else {
@@ -272,10 +272,10 @@ class Praise with ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     for (int i = 0; i < locMorningPraiseslist.length; i++) {
       countLocMorningPraiseslist
-          .add(await prefs.getInt(locMorningPraiseslist[i]));
+          .add(prefs.getInt(locMorningPraiseslist[i]));
     }
     for (int i = 0; i < locNightPraiseslist.length; i++) {
-      countlocNightPraiseslist.add(await prefs.getInt(locNightPraiseslist[i]));
+      countlocNightPraiseslist.add(prefs.getInt(locNightPraiseslist[i]));
     }
     print("**************************************");
 
@@ -286,7 +286,7 @@ class Praise with ChangeNotifier {
     print("**************************************");
   }
 
-  countpraise(String zekr) async {
+  Future<List<String>> countpraise(String zekr) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int temp;
     temp = 0;
@@ -301,7 +301,7 @@ class Praise with ChangeNotifier {
 
   void deletepraise(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> listpraises = await prefs.getStringList("praises")!;
+    List<String> listpraises = prefs.getStringList("praises")!;
     listpraises.remove(key);
     await prefs.setStringList("praises", listpraises);
     praiseslist?.removeWhere((element) => element[0] == key);
@@ -314,12 +314,12 @@ class Praise with ChangeNotifier {
     List<String> praisesName = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<List<String>> allpraises = [];
-    if (await prefs.getStringList("praises") != null) {
-      praisesName = await prefs.getStringList("praises")!;
+    if (prefs.getStringList("praises") != null) {
+      praisesName = prefs.getStringList("praises")!;
       // ignore: unnecessary_null_comparison
       if (praisesName != null) {
         for (var element in praisesName) {
-          temp = await prefs.getStringList(element)!;
+          temp = prefs.getStringList(element)!;
           allpraises.add(temp);
           temp = null;
         }

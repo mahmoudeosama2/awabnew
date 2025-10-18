@@ -40,7 +40,7 @@ class Athan extends StatefulWidget {
 class _AthanState extends State<Athan> {
   final _locationStreamController =
       StreamController<LocationStatus>.broadcast();
-  get stream => _locationStreamController.stream;
+  Stream<LocationStatus> get stream => _locationStreamController.stream;
 
   @override
   void initState() {
@@ -339,7 +339,7 @@ class _AthanState extends State<Athan> {
     ).show();
   }
 
-  inappreview() async {
+  Future<void> inappreview() async {
     //LaunchReview.launch(androidAppId: "com.onatcipli.awab");
   }
 }
