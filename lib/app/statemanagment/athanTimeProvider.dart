@@ -93,6 +93,12 @@ class AthanTime with ChangeNotifier {
     print(prayerstime);
     notifyListeners();
   }
+  void updatePrayerTimes(List<String> newTimes) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prayerstime = newTimes;
+    await prefs.setStringList("prayertime", newTimes);
+    notifyListeners();
+  }
 
   Future<void> getTimesByLatAndlong(double lat, double long) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
