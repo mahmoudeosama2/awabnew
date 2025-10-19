@@ -19,7 +19,7 @@ class _QiblahCompassState extends State<QiblahCompass> {
   final _locationStreamController =
       StreamController<LocationStatus>.broadcast();
 
-  get stream => _locationStreamController.stream;
+  Stream<LocationStatus> get stream => _locationStreamController.stream;
 
   Future<void> checkLocationStatus() async {
     // before running the app please enable your location

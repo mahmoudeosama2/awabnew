@@ -1,4 +1,4 @@
-package com.example.awab
+package com.onatcipli.awab
 
 import io.flutter.embedding.android.FlutterActivity
 

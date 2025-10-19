@@ -1,6 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../../services/notification_service.dart';
+
+class ReminderModel {
+  final int id;
+  final String type;
+  final TimeOfDay time;
+  bool isActive;
+
+  ReminderModel({
+    required this.id,
+    required this.type,
+    required this.time,
+    this.isActive = true,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'time': '${time.hour}:${time.minute}',
+        'isActive': isActive,
+      };
+
+  factory ReminderModel.fromJson(Map<String, dynamic> json) {
+    final timeParts = json['time'].split(':');
+    return ReminderModel(
+      id: json['id'],
+      type: json['type'],
+      time: TimeOfDay(
+          hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1])),
+      isActive: json['isActive'] ?? true,
+    );
+  }
+}
 
 class NotificationSettingsPage extends StatefulWidget {
   const NotificationSettingsPage({super.key});
@@ -12,15 +45,14 @@ class NotificationSettingsPage extends StatefulWidget {
 
 class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   bool _quranReminderEnabled = false;
-  bool _morningAzkarEnabled = false;
-  bool _eveningAzkarEnabled = false;
   bool _adhanEnabled = false;
 
   TimeOfDay _quranReminderTime = const TimeOfDay(hour: 20, minute: 0);
-  TimeOfDay _morningAzkarTime = const TimeOfDay(hour: 7, minute: 0);
-  TimeOfDay _eveningAzkarTime = const TimeOfDay(hour: 18, minute: 0);
 
-  Map<String, bool> _prayerAdhanSettings = {
+  List<ReminderModel> morningReminders = [];
+  List<ReminderModel> eveningReminders = [];
+
+  final Map<String, bool> _prayerAdhanSettings = {
     'الفجر': true,
     'الظهر': true,
     'العصر': true,
@@ -28,13 +60,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     'العشاء': true,
   };
 
-  String _selectedMuezzin = 'الحصري';
-  final List<String> _muezzinList = [
-    'الحصري',
-    'عبد الباسط',
-    'العفاسي',
-    'السديس',
-  ];
+  final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
@@ -47,27 +73,28 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
     setState(() {
       _quranReminderEnabled = prefs.getBool('quran_reminder_enabled') ?? false;
-      _morningAzkarEnabled = prefs.getBool('morning_azkar_enabled') ?? false;
-      _eveningAzkarEnabled = prefs.getBool('evening_azkar_enabled') ?? false;
       _adhanEnabled = prefs.getBool('adhan_enabled') ?? false;
 
       final quranHour = prefs.getInt('quran_reminder_hour') ?? 20;
       final quranMinute = prefs.getInt('quran_reminder_minute') ?? 0;
       _quranReminderTime = TimeOfDay(hour: quranHour, minute: quranMinute);
 
-      final morningHour = prefs.getInt('morning_azkar_hour') ?? 7;
-      final morningMinute = prefs.getInt('morning_azkar_minute') ?? 0;
-      _morningAzkarTime = TimeOfDay(hour: morningHour, minute: morningMinute);
+      final morningData = prefs.getString('morning_reminders');
+      if (morningData != null) {
+        final List decoded = json.decode(morningData);
+        morningReminders =
+            decoded.map((e) => ReminderModel.fromJson(e)).toList();
+      }
 
-      final eveningHour = prefs.getInt('evening_azkar_hour') ?? 18;
-      final eveningMinute = prefs.getInt('evening_azkar_minute') ?? 0;
-      _eveningAzkarTime = TimeOfDay(hour: eveningHour, minute: eveningMinute);
-
-      _selectedMuezzin = prefs.getString('selected_muezzin') ?? 'الحصري';
+      final eveningData = prefs.getString('evening_reminders');
+      if (eveningData != null) {
+        final List decoded = json.decode(eveningData);
+        eveningReminders =
+            decoded.map((e) => ReminderModel.fromJson(e)).toList();
+      }
 
       _prayerAdhanSettings.forEach((key, value) {
-        _prayerAdhanSettings[key] =
-            prefs.getBool('adhan_$key') ?? true;
+        _prayerAdhanSettings[key] = prefs.getBool('adhan_$key') ?? true;
       });
     });
   }
@@ -76,18 +103,15 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setBool('quran_reminder_enabled', _quranReminderEnabled);
-    await prefs.setBool('morning_azkar_enabled', _morningAzkarEnabled);
-    await prefs.setBool('evening_azkar_enabled', _eveningAzkarEnabled);
     await prefs.setBool('adhan_enabled', _adhanEnabled);
 
     await prefs.setInt('quran_reminder_hour', _quranReminderTime.hour);
     await prefs.setInt('quran_reminder_minute', _quranReminderTime.minute);
-    await prefs.setInt('morning_azkar_hour', _morningAzkarTime.hour);
-    await prefs.setInt('morning_azkar_minute', _morningAzkarTime.minute);
-    await prefs.setInt('evening_azkar_hour', _eveningAzkarTime.hour);
-    await prefs.setInt('evening_azkar_minute', _eveningAzkarTime.minute);
 
-    await prefs.setString('selected_muezzin', _selectedMuezzin);
+    await prefs.setString('morning_reminders',
+        json.encode(morningReminders.map((e) => e.toJson()).toList()));
+    await prefs.setString('evening_reminders',
+        json.encode(eveningReminders.map((e) => e.toJson()).toList()));
 
     _prayerAdhanSettings.forEach((key, value) async {
       await prefs.setBool('adhan_$key', value);
@@ -95,443 +119,766 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
     _scheduleNotifications();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'تم حفظ الإعدادات بنجاح ✓',
-          style: TextStyle(fontFamily: 'Amiri'),
-          textAlign: TextAlign.center,
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'تم حفظ الإعدادات بنجاح ✓',
+            style: TextStyle(fontFamily: 'Amiri', fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Theme.of(context).primaryColor,
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          margin: const EdgeInsets.all(20),
         ),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
+      );
+    }
   }
 
   void _scheduleNotifications() {
-    final notificationService = NotificationService();
-
     if (_quranReminderEnabled) {
-      notificationService.scheduleDailyQuranReminder(
+      _notificationService.scheduleDailyQuranReminder(
         _quranReminderTime.hour,
         _quranReminderTime.minute,
       );
     } else {
-      notificationService.cancelNotification(0);
+      _notificationService.cancelNotification(0);
     }
 
-    if (_morningAzkarEnabled) {
-      notificationService.scheduleMorningAzkarReminder(
-        _morningAzkarTime.hour,
-        _morningAzkarTime.minute,
-      );
-    } else {
-      notificationService.cancelNotification(1);
+    for (var reminder in morningReminders) {
+      if (reminder.isActive) {
+        _notificationService.scheduleMorningAzkarReminder(
+          reminder.time.hour,
+          reminder.time.minute,
+          reminder.id,
+        );
+      }
     }
 
-    if (_eveningAzkarEnabled) {
-      notificationService.scheduleEveningAzkarReminder(
-        _eveningAzkarTime.hour,
-        _eveningAzkarTime.minute,
-      );
-    } else {
-      notificationService.cancelNotification(2);
+    for (var reminder in eveningReminders) {
+      if (reminder.isActive) {
+        _notificationService.scheduleEveningAzkarReminder(
+          reminder.time.hour,
+          reminder.time.minute,
+          reminder.id,
+        );
+      }
     }
   }
 
-  Future<void> _selectTime(BuildContext context, String type) async {
-    TimeOfDay currentTime;
-
-    switch (type) {
-      case 'quran':
-        currentTime = _quranReminderTime;
-        break;
-      case 'morning':
-        currentTime = _morningAzkarTime;
-        break;
-      case 'evening':
-        currentTime = _eveningAzkarTime;
-        break;
-      default:
-        currentTime = TimeOfDay.now();
-    }
-
-    final TimeOfDay? picked = await showTimePicker(
+  void _showAddReminderDialog(String type) {
+    showDialog(
       context: context,
-      initialTime: currentTime,
-      builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: child!,
-        );
-      },
+      builder: (context) => _AddReminderDialog(
+        type: type,
+        onAdd: (time) {
+          setState(() {
+            if (type == 'morning') {
+              final id = 100 + morningReminders.length;
+              morningReminders
+                  .add(ReminderModel(id: id, type: type, time: time));
+              _notificationService.scheduleMorningAzkarReminder(
+                  time.hour, time.minute, id);
+            } else {
+              final id = 200 + eveningReminders.length;
+              eveningReminders
+                  .add(ReminderModel(id: id, type: type, time: time));
+              _notificationService.scheduleEveningAzkarReminder(
+                  time.hour, time.minute, id);
+            }
+          });
+          _saveSettings();
+        },
+      ),
     );
+  }
 
-    if (picked != null) {
-      setState(() {
-        switch (type) {
-          case 'quran':
-            _quranReminderTime = picked;
-            break;
-          case 'morning':
-            _morningAzkarTime = picked;
-            break;
-          case 'evening':
-            _eveningAzkarTime = picked;
-            break;
-        }
-      });
+  void _toggleReminder(ReminderModel reminder) async {
+    setState(() {
+      reminder.isActive = !reminder.isActive;
+    });
+
+    if (reminder.isActive) {
+      if (reminder.type == 'morning') {
+        await _notificationService.scheduleMorningAzkarReminder(
+          reminder.time.hour,
+          reminder.time.minute,
+          reminder.id,
+        );
+      } else {
+        await _notificationService.scheduleEveningAzkarReminder(
+          reminder.time.hour,
+          reminder.time.minute,
+          reminder.id,
+        );
+      }
+    } else {
+      await _notificationService.cancelNotification(reminder.id);
     }
+    _saveSettings();
+  }
+
+  void _deleteReminder(ReminderModel reminder) async {
+    await _notificationService.cancelNotification(reminder.id);
+    setState(() {
+      if (reminder.type == 'morning') {
+        morningReminders.remove(reminder);
+      } else {
+        eveningReminders.remove(reminder);
+      }
+    });
+    _saveSettings();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text(
-          'إعدادات التذكيرات',
-          style: TextStyle(
-            fontFamily: 'Amiri',
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              primaryColor,
+              primaryColor.withOpacity(0.8),
+              primaryColor.withOpacity(0.6),
+              primaryColor.withOpacity(0.4),
+            ],
           ),
         ),
-        backgroundColor: Theme.of(context).primaryColor,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save, color: Colors.white),
-            onPressed: _saveSettings,
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 20),
+                  decoration: BoxDecoration(
+                    color: theme.scaffoldBackgroundColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: ListView(
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      _buildQuranReminderCard(),
+                      const SizedBox(height: 20),
+                      _buildAzkarRemindersCard(),
+                      const SizedBox(height: 20),
+                      _buildAdhanSettingsCard(),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _saveSettings,
+        backgroundColor: primaryColor,
+        icon: const Icon(Icons.save, color: Colors.white),
+        label: Text(
+          'حفظ الإعدادات',
+          style: theme.textTheme.displayLarge?.copyWith(fontSize: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
         children: [
-          _buildQuranReminderCard(),
-          const SizedBox(height: 16),
-          _buildAzkarRemindersCard(),
-          const SizedBox(height: 16),
-          _buildAdhanSettingsCard(),
-          const SizedBox(height: 100),
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          ),
+          Expanded(
+            child: Text(
+              'إعدادات التذكيرات',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineLarge,
+            ),
+          ),
+          const SizedBox(width: 48),
         ],
       ),
     );
   }
 
   Widget _buildQuranReminderCard() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.book,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'تذكير قراءة القرآن',
-                    style: TextStyle(
-                      fontFamily: 'Amiri',
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Switch(
-                  value: _quranReminderEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      _quranReminderEnabled = value;
-                    });
-                  },
-                  activeColor: Theme.of(context).primaryColor,
-                ),
-              ],
-            ),
-            if (_quranReminderEnabled) ...[
-              const Divider(height: 32),
-              ListTile(
-                title: const Text(
-                  'الوقت',
-                  style: TextStyle(fontFamily: 'Amiri', fontSize: 16),
-                ),
-                trailing: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _quranReminderTime.format(context),
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-                onTap: () => _selectTime(context, 'quran'),
-              ),
-            ],
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+            theme.scaffoldBackgroundColor,
           ],
         ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [primaryColor, primaryColor.withOpacity(0.7)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.book, color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'تذكير قراءة القرآن',
+                  style: theme.textTheme.titleLarge,
+                ),
+              ),
+              Switch(
+                value: _quranReminderEnabled,
+                onChanged: (value) {
+                  setState(() {
+                    _quranReminderEnabled = value;
+                  });
+                },
+                activeColor: primaryColor,
+              ),
+            ],
+          ),
+          if (_quranReminderEnabled) ...[
+            const SizedBox(height: 20),
+            InkWell(
+              onTap: () async {
+                final time = await showTimePicker(
+                  context: context,
+                  initialTime: _quranReminderTime,
+                  builder: (context, child) {
+                    return Theme(
+                      data: theme.copyWith(
+                        colorScheme: ColorScheme.light(
+                          primary: primaryColor,
+                          onPrimary: Colors.white,
+                        ),
+                      ),
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: child!,
+                      ),
+                    );
+                  },
+                );
+                if (time != null) {
+                  setState(() => _quranReminderTime = time);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: theme.scaffoldBackgroundColor,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: primaryColor,
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.access_time, color: primaryColor, size: 24),
+                    const SizedBox(width: 10),
+                    Text(
+                      '${_quranReminderTime.hour.toString().padLeft(2, '0')}:${_quranReminderTime.minute.toString().padLeft(2, '0')}',
+                      style: theme.textTheme.displayMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 
   Widget _buildAzkarRemindersCard() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.wb_sunny, color: Colors.orange),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'تذكير الأذكار',
-                  style: TextStyle(
-                    fontFamily: 'Amiri',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildAzkarReminderItem(
-              'أذكار الصباح',
-              Icons.wb_sunny_outlined,
-              Colors.amber,
-              _morningAzkarEnabled,
-              (value) {
-                setState(() {
-                  _morningAzkarEnabled = value;
-                });
-              },
-              _morningAzkarTime,
-              () => _selectTime(context, 'morning'),
-            ),
-            const Divider(height: 32),
-            _buildAzkarReminderItem(
-              'أذكار المساء',
-              Icons.nightlight_round,
-              Colors.indigo,
-              _eveningAzkarEnabled,
-              (value) {
-                setState(() {
-                  _eveningAzkarEnabled = value;
-                });
-              },
-              _eveningAzkarTime,
-              () => _selectTime(context, 'evening'),
-            ),
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+            theme.scaffoldBackgroundColor,
           ],
         ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [primaryColor, primaryColor.withOpacity(0.7)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.auto_stories,
+                    color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'تذكيرات الأذكار',
+                style: theme.textTheme.titleLarge,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildAzkarSection('أذكار الصباح ☀️', 'morning', morningReminders),
+          const SizedBox(height: 20),
+          _buildAzkarSection('أذكار المساء 🌙', 'evening', eveningReminders),
+        ],
       ),
     );
   }
 
-  Widget _buildAzkarReminderItem(
-    String title,
-    IconData icon,
-    Color color,
-    bool enabled,
-    Function(bool) onChanged,
-    TimeOfDay time,
-    VoidCallback onTimeTap,
-  ) {
+  Widget _buildAzkarSection(
+      String title, String type, List<ReminderModel> reminders) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: color),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: 'Amiri',
-                  fontSize: 16,
-                ),
-              ),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium,
             ),
-            Switch(
-              value: enabled,
-              onChanged: onChanged,
-              activeColor: color,
-            ),
-          ],
-        ),
-        if (enabled)
-          Padding(
-            padding: const EdgeInsets.only(right: 36, top: 8),
-            child: GestureDetector(
-              onTap: onTimeTap,
+            InkWell(
+              onTap: () => _showAddReminderDialog(type),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [primaryColor, primaryColor.withOpacity(0.7)],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: const Row(
                   children: [
-                    Icon(Icons.access_time, size: 16, color: color),
-                    const SizedBox(width: 8),
+                    Icon(Icons.add, color: Colors.white, size: 16),
+                    SizedBox(width: 5),
                     Text(
-                      time.format(context),
+                      'إضافة',
                       style: TextStyle(
-                        fontSize: 16,
+                        color: Colors.white,
+                        fontFamily: 'Amiri',
                         fontWeight: FontWeight.bold,
-                        color: color,
+                        fontSize: 14,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-          ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (reminders.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                'لا توجد تذكيرات',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.textTheme.titleMedium?.color?.withOpacity(0.5),
+                ),
+              ),
+            ),
+          )
+        else
+          ...reminders.map((reminder) => _buildReminderItem(reminder)),
       ],
     );
   }
 
+  Widget _buildReminderItem(ReminderModel reminder) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: reminder.isActive
+            ? theme.scaffoldBackgroundColor
+            : (isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: reminder.isActive
+              ? primaryColor.withOpacity(0.3)
+              : Colors.grey.shade400,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            reminder.type == 'morning' ? Icons.wb_sunny : Icons.nights_stay,
+            color: reminder.isActive
+                ? primaryColor
+                : Colors.grey.shade400,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '${reminder.time.hour.toString().padLeft(2, '0')}:${reminder.time.minute.toString().padLeft(2, '0')}',
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: reminder.isActive
+                    ? null
+                    : Colors.grey.shade500,
+              ),
+            ),
+          ),
+          Switch(
+            value: reminder.isActive,
+            onChanged: (_) => _toggleReminder(reminder),
+            activeColor: primaryColor,
+          ),
+          IconButton(
+            onPressed: () => _deleteReminder(reminder),
+            icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAdhanSettingsCard() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+            theme.scaffoldBackgroundColor,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [primaryColor, primaryColor.withOpacity(0.7)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.mosque, color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'إعدادات الأذان',
+                  style: theme.textTheme.titleLarge,
+                ),
+              ),
+              Switch(
+                value: _adhanEnabled,
+                onChanged: (value) {
+                  setState(() {
+                    _adhanEnabled = value;
+                  });
+                },
+                activeColor: primaryColor,
+              ),
+            ],
+          ),
+          if (_adhanEnabled) ...[
+            const SizedBox(height: 20),
+            Text(
+              'تفعيل الأذان للصلوات:',
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            ..._prayerAdhanSettings.entries.map((entry) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: entry.value
+                      ? primaryColor.withOpacity(isDark ? 0.2 : 0.1)
+                      : (isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: entry.value,
+                      onChanged: (value) {
+                        setState(() {
+                          _prayerAdhanSettings[entry.key] = value ?? false;
+                        });
+                      },
+                      activeColor: primaryColor,
+                    ),
+                    Text(
+                      entry.key,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 15),
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.volume_up, color: primaryColor),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'سيتم تشغيل الأذان تلقائيًا من الملف الصوتي المسجل',
+                      style: theme.textTheme.titleSmall?.copyWith(fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AddReminderDialog extends StatefulWidget {
+  final String type;
+  final Function(TimeOfDay) onAdd;
+
+  const _AddReminderDialog({required this.type, required this.onAdd});
+
+  @override
+  State<_AddReminderDialog> createState() => _AddReminderDialogState();
+}
+
+class _AddReminderDialogState extends State<_AddReminderDialog> {
+  TimeOfDay selectedTime = const TimeOfDay(hour: 7, minute: 0);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+      child: Container(
+        padding: const EdgeInsets.all(25),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              primaryColor.withOpacity(isDark ? 0.3 : 0.2),
+              theme.scaffoldBackgroundColor,
+            ],
+          ),
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [primaryColor, primaryColor.withOpacity(0.7)],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                widget.type == 'morning' ? Icons.wb_sunny : Icons.nights_stay,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              widget.type == 'morning'
+                  ? 'إضافة تذكير صباحي'
+                  : 'إضافة تذكير مسائي',
+              style: theme.textTheme.titleLarge,
+            ),
+            const SizedBox(height: 30),
+            InkWell(
+              onTap: () async {
+                final time = await showTimePicker(
+                  context: context,
+                  initialTime: selectedTime,
+                  builder: (context, child) {
+                    return Theme(
+                      data: theme.copyWith(
+                        colorScheme: ColorScheme.light(
+                          primary: primaryColor,
+                          onPrimary: Colors.white,
+                        ),
+                      ),
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: child!,
+                      ),
+                    );
+                  },
+                );
+                if (time != null) {
+                  setState(() => selectedTime = time);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: theme.scaffoldBackgroundColor,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: primaryColor, width: 2),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.access_time, color: primaryColor, size: 30),
+                    const SizedBox(width: 15),
+                    Text(
+                      '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
+                      style: theme.textTheme.displayMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 25),
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.mosque, color: Colors.green),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'إعدادات الأذان',
-                    style: TextStyle(
-                      fontFamily: 'Amiri',
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'إلغاء',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
-                Switch(
-                  value: _adhanEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      _adhanEnabled = value;
-                    });
-                  },
-                  activeColor: Colors.green,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [primaryColor, primaryColor.withOpacity(0.7)],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        widget.onAdd(selectedTime);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'إضافة',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Amiri',
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
-            if (_adhanEnabled) ...[
-              const Divider(height: 32),
-              const Text(
-                'تفعيل الأذان للصلوات:',
-                style: TextStyle(
-                  fontFamily: 'Amiri',
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ..._prayerAdhanSettings.entries.map((entry) {
-                return CheckboxListTile(
-                  title: Text(
-                    entry.key,
-                    style: const TextStyle(fontFamily: 'Amiri', fontSize: 16),
-                  ),
-                  value: entry.value,
-                  onChanged: (value) {
-                    setState(() {
-                      _prayerAdhanSettings[entry.key] = value ?? false;
-                    });
-                  },
-                  activeColor: Colors.green,
-                  controlAffinity: ListTileControlAffinity.leading,
-                );
-              }),
-              const Divider(height: 32),
-              const Text(
-                'اختيار المؤذن:',
-                style: TextStyle(
-                  fontFamily: 'Amiri',
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _muezzinList.map((muezzin) {
-                  final isSelected = _selectedMuezzin == muezzin;
-                  return ChoiceChip(
-                    label: Text(
-                      muezzin,
-                      style: TextStyle(
-                        fontFamily: 'Amiri',
-                        fontSize: 16,
-                        color: isSelected ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedMuezzin = muezzin;
-                      });
-                    },
-                    selectedColor: Colors.green,
-                    backgroundColor: Colors.grey.shade200,
-                    elevation: isSelected ? 4 : 0,
-                  );
-                }).toList(),
-              ),
-            ],
           ],
         ),
       ),

@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
-import '../../models/tasbeeh_model.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../models/tasbeeh_model.dart';
 
 class TasbeehTrackerPage extends StatefulWidget {
   const TasbeehTrackerPage({super.key});
@@ -107,7 +108,7 @@ class _TasbeehTrackerPageState extends State<TasbeehTrackerPage>
           style: const TextStyle(fontFamily: 'Amiri'),
           textAlign: TextAlign.center,
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: Theme.of(context).primaryColor,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -117,9 +118,7 @@ class _TasbeehTrackerPageState extends State<TasbeehTrackerPage>
   @override
   Widget build(BuildContext context) {
     if (stats == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -171,12 +170,7 @@ class _TasbeehTrackerPageState extends State<TasbeehTrackerPage>
               ),
             ];
           },
-          body: TabBarView(
-            children: [
-              _buildTasbeehTab(),
-              _buildStatsTab(),
-            ],
-          ),
+          body: TabBarView(children: [_buildTasbeehTab(), _buildStatsTab()]),
         ),
       ),
     );
@@ -493,11 +487,7 @@ class _TasbeehTrackerPageState extends State<TasbeehTrackerPage>
         ),
         child: Column(
           children: [
-            const Icon(
-              Icons.emoji_events,
-              size: 60,
-              color: Colors.white,
-            ),
+            const Icon(Icons.emoji_events, size: 60, color: Colors.white),
             const SizedBox(height: 16),
             const Text(
               'إجمالي التسبيحات',
@@ -575,9 +565,11 @@ class _TasbeehTrackerPageState extends State<TasbeehTrackerPage>
                   ),
                   titlesData: FlTitlesData(
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -600,7 +592,9 @@ class _TasbeehTrackerPageState extends State<TasbeehTrackerPage>
                     LineChartBarData(
                       spots: chartData.asMap().entries.map((entry) {
                         return FlSpot(
-                            entry.key.toDouble(), entry.value.toDouble());
+                          entry.key.toDouble(),
+                          entry.value.toDouble(),
+                        );
                       }).toList(),
                       isCurved: true,
                       color: Theme.of(context).primaryColor,
@@ -663,7 +657,9 @@ class _TasbeehTrackerPageState extends State<TasbeehTrackerPage>
             const SizedBox(height: 12),
             ...recentSessions.map((session) {
               final date = DateTime.parse(session.timestamp);
-              final formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(date);
+              final formattedDate = DateFormat(
+                'dd/MM/yyyy hh:mm a',
+              ).format(date);
 
               return ListTile(
                 leading: CircleAvatar(
@@ -682,8 +678,10 @@ class _TasbeehTrackerPageState extends State<TasbeehTrackerPage>
                   style: const TextStyle(fontSize: 12),
                 ),
                 trailing: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),

@@ -41,7 +41,7 @@ class _ViewSurahtate extends State<RadioFm> with TickerProviderStateMixin {
     return Future.value(true);
   }
 
-  change_icon() {
+  void change_icon() {
     if (_isplay == false) {
       _controller.forward();
       getaudio("https://stream.radiojar.com/8s5u5tpdtwzuv");

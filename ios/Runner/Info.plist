@@ -41,6 +41,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIBackgroundModes</key>
+<array>
+    <string>audio</string>
+    <string>fetch</string>
+</array>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>نحتاج إلى موقعك لتحديد أوقات الصلاة بدقة</string>
+<key>NSLocationAlwaysUsageDescription</key>
+<string>نحتاج إلى موقعك لإرسال تنبيهات الأذان في الوقت المناسب</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

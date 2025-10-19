@@ -101,10 +101,13 @@ class _splashscreenState extends State<splashscreen> {
       await other.getNotificationStatus("notificationSwitch");
       if (other.firstuse == true) {
         praise.initLocpriase();
-        praise.initsomeprefs();
+        await praise.initsomeprefs();
+        await praise.showallpraises();
+        praise.loadAzkarFromJson();
       } else {
         praise.getLocpriase();
       }
+
       praise.showallpraises();
       quran.ReadJsonCompleteQuran();
       quran.ReadJsonQuranReader();

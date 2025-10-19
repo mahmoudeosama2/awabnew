@@ -7,6 +7,6 @@ class Radioprovider with ChangeNotifier {
   // final TwoDigitsMinuite = twoDigits(Duration());
 
   void play_pause_choose() {
-    radio_play_pause_icon = getprefs("play_pause_choose");
+    radio_play_pause_icon = getprefs("play_pause_choose") as bool?;
   }
 }

@@ -14,7 +14,7 @@ class Other with ChangeNotifier {
   bool? isplay = false;
   bool? justone = false;
   double surahMark = 0.0;
-  changeTheme() {
+  void changeTheme() {
     if (themeMode == false) {
       themeMode = true;
     } else {
@@ -23,7 +23,7 @@ class Other with ChangeNotifier {
     notifyListeners();
   }
 
-  requestPermissionFirstUse() async {
+  Future<void> requestPermissionFirstUse() async {
     // print(firstuse);
     // if (firstuse == true) {
 
@@ -36,7 +36,7 @@ class Other with ChangeNotifier {
 
   //  }
 
-  FirstUse() async {
+  Future<void> FirstUse() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (prefs.containsKey("firstuse") == false) {
@@ -47,7 +47,7 @@ class Other with ChangeNotifier {
     }
   }
 
-  RateFirstUse() async {
+  Future<void> RateFirstUse() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey("rateapp")) {
       countopen = prefs.getInt("rateapp");
@@ -57,13 +57,13 @@ class Other with ChangeNotifier {
     }
   }
 
-  dontRateAgring() async {
+  Future<void> dontRateAgring() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool("dontRateAgring", true);
     isshowingrate = true;
   }
 
-  ifcontainsKey(String key) async {
+  Future<bool> ifcontainsKey(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey(key)) {
       return true;
@@ -72,12 +72,12 @@ class Other with ChangeNotifier {
     }
   }
 
-  ifCancelRate() async {
+  Future<void> ifCancelRate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool("isSetCancelRate", true);
   }
 
-  maxopenToRate() async {
+  Future<void> maxopenToRate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey("isSetCancelRate")) {
       maxOpenToRate = 10;
@@ -86,7 +86,7 @@ class Other with ChangeNotifier {
     }
   }
 
-  getBooslSwtch(String key, bool temp) async {
+  Future<bool> getBooslSwtch(String key, bool temp) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(key.toString()) == true) {
       temp = true;
@@ -99,9 +99,10 @@ class Other with ChangeNotifier {
 
       return false;
     }
+    return false;
   }
 
-  getNotificationStatus(String key) async {
+  Future<bool> getNotificationStatus(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(key.toString()) == true) {
       isSwitchedNotificatio = true;
@@ -114,6 +115,7 @@ class Other with ChangeNotifier {
 
       return false;
     }
+    return false;
   }
 
   Future getThemeStatus(String key) async {
@@ -131,12 +133,12 @@ class Other with ChangeNotifier {
     }
   }
 
-  stest(bool temp) {
+  void stest(bool temp) {
     temp != temp;
     notifyListeners();
   }
 
-  test() async {
+  Future<void> test() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool("notificationSwitch", true);
     print("${prefs.getBool("notificationSwitch")} 55555555555555555555");
@@ -152,16 +154,16 @@ class Other with ChangeNotifier {
   //     return false;
   //   }
   // }
-  clearAllPrefs() async {
+  Future<void> clearAllPrefs() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.clear();
   }
 
-  getallprefs() async {
+  Future<void> getallprefs() async {
     final prefs = await SharedPreferences.getInstance();
     final keys = prefs.getKeys();
 
-    final prefsMap = Map<String, dynamic>();
+    final prefsMap = <String, dynamic>{};
     for (String key in keys) {
       prefsMap[key] = prefs.get(key);
       print(key);
@@ -170,15 +172,15 @@ class Other with ChangeNotifier {
     //  print(prefsMap);
   }
 
-  getSurahMark(key) async {
+  Future<void> getSurahMark(key) async {
     
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (await prefs.containsKey(key)) {
-      surahMark = await prefs.getDouble(key)!;
+    if (prefs.containsKey(key)) {
+      surahMark = prefs.getDouble(key)!;
     }
   }
 
-  addSurahMark(key) async {
+  Future<void> addSurahMark(key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setDouble(key, surahMark);
   }

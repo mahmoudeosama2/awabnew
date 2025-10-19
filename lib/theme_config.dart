@@ -4,18 +4,21 @@ ThemeData lightThemee = ThemeData.light();
 
 ThemeData darkThemee = ThemeData.dark();
 
-ThemeData customlightTheme = customlightTheme.copyWith(
+ThemeData customlightTheme = ThemeData.light().copyWith(
   brightness: Brightness.light,
   appBarTheme: AppBarTheme(backgroundColor: Color(0xff095263)),
+
   primaryColor: Color(0xff095263),
-  scaffoldBackgroundColor: Colors.white,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       backgroundColor: WidgetStateProperty.all<Color>(Color(0xff095263)),
     ),
   ),
+
+  // ignore: prefer_const_constructors
   textTheme: TextTheme(
     displayLarge: TextStyle(
+      backgroundColor: Color(0xff095263),
       fontSize: 16,
       color: Colors.white,
       fontWeight: FontWeight.w600,
@@ -27,15 +30,16 @@ ThemeData customlightTheme = customlightTheme.copyWith(
       fontWeight: FontWeight.w600,
     ),
     displaySmall: TextStyle(
-      //  fontFamily: "Cairo",
+      height: 1.8,
+      color: Colors.black87,
       fontSize: 20,
-      fontWeight: FontWeight.w500,
-      fontFamily: "Amiri",
+      // fontWeight: FontWeight.w500,
+      fontFamily: "Med",
     ),
     headlineLarge: TextStyle(
       color: Colors.white,
       fontSize: 28,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w900,
       fontFamily: "Amiri",
       //   fontFamily: "Cairo",
     ),
@@ -62,14 +66,27 @@ ThemeData customlightTheme = customlightTheme.copyWith(
       color: Colors.black54,
       fontWeight: FontWeight.w600,
     ),
-  ),
-);
+    labelSmall: TextStyle(
+      height: 1.8,
 
-ThemeData customDarkTheme = customDarkTheme.copyWith(
+      fontSize: 20,
+      fontWeight: FontWeight.w400,
+      fontFamily: "Amiri",
+    ),
+    bodyMedium: TextStyle(
+      //  fontFamily: "Cairo",
+      fontSize: 30,
+      color: Color(0xff095263),
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+
+  //    colorScheme: ColorScheme(surface: Colors.white),
+);
+ThemeData customDarkTheme = ThemeData.dark().copyWith(
   brightness: Brightness.dark,
   appBarTheme: AppBarTheme(backgroundColor: Color(0xff18191A)),
   primaryColor: Color(0xff18191A),
-  scaffoldBackgroundColor: Color(0xff303030),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       backgroundColor: WidgetStateProperty.all<Color>(Color(0xff095263)),
@@ -77,6 +94,7 @@ ThemeData customDarkTheme = customDarkTheme.copyWith(
   ),
   textTheme: TextTheme(
     displayLarge: TextStyle(
+      backgroundColor: Color(0xff18191A),
       fontSize: 16,
       color: Colors.white,
       fontWeight: FontWeight.w600,
@@ -88,10 +106,11 @@ ThemeData customDarkTheme = customDarkTheme.copyWith(
       fontWeight: FontWeight.w600,
     ),
     displaySmall: TextStyle(
-      //  fontFamily: "Cairo",
+      height: 1.8,
       fontSize: 20,
       // fontWeight: FontWeight.w500,
-      fontFamily: "Amiri",
+      color: Colors.white70,
+      fontFamily: "Med",
     ),
     headlineLarge: TextStyle(
       color: Color(0xffB0BEC5),
@@ -124,5 +143,19 @@ ThemeData customDarkTheme = customDarkTheme.copyWith(
       color: Colors.white,
       fontWeight: FontWeight.w600,
     ),
+    labelSmall: TextStyle(
+      height: 1.8,
+      color: Color(0xff18191A),
+      fontSize: 20,
+      fontWeight: FontWeight.w400,
+      fontFamily: "Amiri",
+    ),
+    bodyMedium: TextStyle(
+      //  fontFamily: "Cairo",
+      fontSize: 30,
+      color: Color.fromARGB(255, 170, 169, 169),
+      fontWeight: FontWeight.w600,
+    ),
   ),
+  //  colorScheme: ColorScheme(surface: Color(0xff303030)),
 );

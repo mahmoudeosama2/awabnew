@@ -1,11 +1,9 @@
 import 'dart:io';
 
 import 'package:awab/app/pages/drawerHome/setting.dart';
+import 'package:awab/app/pages/notifications/notification_settings_page.dart';
 import 'package:awab/app/pages/praise/azkar.dart';
 import 'package:awab/app/pages/radio/radiofm.dart';
-import 'package:awab/app/pages/daily_goal/daily_goal_page.dart';
-import 'package:awab/app/pages/tasbeeh/tasbeeh_tracker_page.dart';
-import 'package:awab/app/pages/notifications/notification_settings_page.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
@@ -216,44 +214,44 @@ class _MenuScreenPageState extends State<MenuScreenPage> {
             const SizedBox(height: 40),
             Column(
               children: [
-                ListTile(
-                  onTap: () {
-                    ZoomDrawer.of(context)!.toggle();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const DailyGoalPage(),
-                      ),
-                    );
-                  },
-                  leading: const Icon(
-                    Icons.book_outlined,
-                    color: Colors.white,
-                    size: 25,
-                  ),
-                  title: Text(
-                    'الورد اليومي',
-                    style: Theme.of(context).textTheme.displayLarge,
-                  ),
-                ),
-                ListTile(
-                  onTap: () {
-                    ZoomDrawer.of(context)!.toggle();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const TasbeehTrackerPage(),
-                      ),
-                    );
-                  },
-                  leading: const Icon(
-                    Icons.timeline,
-                    color: Colors.white,
-                    size: 25,
-                  ),
-                  title: Text(
-                    'خريطة التسبيح',
-                    style: Theme.of(context).textTheme.displayLarge,
-                  ),
-                ),
+                // ListTile(
+                //   onTap: () {
+                //     ZoomDrawer.of(context)!.toggle();
+                //     Navigator.of(context).push(
+                //       MaterialPageRoute(
+                //         builder: (context) => const DailyGoalPage(),
+                //       ),
+                //     );
+                //   },
+                //   leading: const Icon(
+                //     Icons.book_outlined,
+                //     color: Colors.white,
+                //     size: 25,
+                //   ),
+                //   title: Text(
+                //     'الورد اليومي',
+                //     style: Theme.of(context).textTheme.displayLarge,
+                //   ),
+                // ),
+                // ListTile(
+                //   onTap: () {
+                //     ZoomDrawer.of(context)!.toggle();
+                //     Navigator.of(context).push(
+                //       MaterialPageRoute(
+                //         builder: (context) => const TasbeehTrackerPage(),
+                //       ),
+                //     );
+                //   },
+                //   leading: const Icon(
+                //     Icons.timeline,
+                //     color: Colors.white,
+                //     size: 25,
+                //   ),
+                //   title: Text(
+                //     'خريطة التسبيح',
+                //     style: Theme.of(context).textTheme.displayLarge,
+                //   ),
+                // ),
                 ListTile(
                   onTap: () {
                     ZoomDrawer.of(context)!.toggle();
@@ -275,7 +273,7 @@ class _MenuScreenPageState extends State<MenuScreenPage> {
                 ),
                 ListTile(
                   onTap: () {
-                //    LaunchReview.launch(androidAppId: "com.onatcipli.awab");
+                    //    LaunchReview.launch(androidAppId: "com.onatcipli.awab");
                   },
                   leading: const Icon(
                     Icons.star,
@@ -323,7 +321,16 @@ class _MenuScreenPageState extends State<MenuScreenPage> {
                 ListTile(
                   onTap: () async {
                     final result = await Share.share(
-                      'برنامج اواب هوا برنامج يساعدك علي القراءه عن طريق الضغط علي كل ايه منفرده للاستماع اليها وايضا الاستماع للسوره كاملة لاكثر من قارئ ,معرفه اتجاه القبله من اي مكان حسب الموقع , معرفه مواقيت الصلاه حسب المكان بأستخدام الموقع , التسبيح عن طريق اضافه اي ذكر تريده  https://play.google.com/store/apps/details?id=com.onatcipli.awab&hl=en&gl=US',
+                      'أواب هو تطبيق قرآني متكامل يوفر:\n'
+                              '- قراءة القرآن الكrame آية بآية\n'
+                              '- الاستماع للتلاوات من قرّاء متعددين\n'
+                              '- خريطة التسبيح مع إحصائيات تفصيلية\n'
+                              '- تذكيرات ذيمة للقراءة والأذكار\n' +
+                          '- مواقيت الصلاة مع إمكانية الأذان\n' +
+                          '- تحديد اتجاه القبلة\n' +
+                          '- الاستماع لإذاعة القرآن الكrame\n' +
+                          '- مشاركة الآيات على وسائل التواصل\n' +
+                          'https://play.google.com/store/apps/details?id=com.onatcipli.awab&hl=en&gl=US',
                     );
                   },
                   leading: Icon(Icons.share, color: Colors.white, size: 25),

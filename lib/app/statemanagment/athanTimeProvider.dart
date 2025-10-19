@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:adhan/adhan.dart';
-import 'package:flutter/services.dart%20';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -51,7 +51,7 @@ class AthanTime with ChangeNotifier {
     return true;
   }
 
-  openloctionset() {
+  void openloctionset() {
     Geolocator.openLocationSettings();
   }
 
@@ -93,6 +93,12 @@ class AthanTime with ChangeNotifier {
     print(prayerstime);
     notifyListeners();
   }
+  void updatePrayerTimes(List<String> newTimes) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prayerstime = newTimes;
+    await prefs.setStringList("prayertime", newTimes);
+    notifyListeners();
+  }
 
   Future<void> getTimesByLatAndlong(double lat, double long) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -114,7 +120,7 @@ class AthanTime with ChangeNotifier {
     notifyListeners();
   }
 
-  lastprayertimes() async {
+  Future<void> lastprayertimes() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey("prayertime")) {
       prayerstime = prefs.getStringList("prayertime");
@@ -125,7 +131,7 @@ class AthanTime with ChangeNotifier {
     }
   }
 
-  getlatlongbycity(String name) {
+  void getlatlongbycity(String name) {
     for (var element in governorate) {
       if (element.governorateNameAr == name) {
         coordinates = [];

@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:animations/animations.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
+
 import '../../models/daily_goal_model.dart';
 import '../../services/notification_service.dart';
-import 'package:animations/animations.dart';
 
 class DailyGoalPage extends StatefulWidget {
   const DailyGoalPage({super.key});
@@ -82,8 +83,9 @@ class _DailyGoalPageState extends State<DailyGoalPage>
         currentGoal!.currentStreak += 1;
         if (currentGoal!.currentStreak > currentGoal!.longestStreak) {
           currentGoal!.longestStreak = currentGoal!.currentStreak;
-          NotificationService()
-              .showStreakNotification(currentGoal!.currentStreak);
+          NotificationService().showStreakNotification(
+            currentGoal!.currentStreak,
+          );
         }
       } else if (difference > 1) {
         currentGoal!.currentStreak = 1;
@@ -95,15 +97,15 @@ class _DailyGoalPageState extends State<DailyGoalPage>
   @override
   Widget build(BuildContext context) {
     if (currentGoal == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final todayProgress = currentGoal!.dailyProgress[today] ?? 0;
-    final progressPercentage =
-        (todayProgress / currentGoal!.goalPages).clamp(0.0, 1.0);
+    final progressPercentage = (todayProgress / currentGoal!.goalPages).clamp(
+      0.0,
+      1.0,
+    );
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -270,12 +272,15 @@ class _DailyGoalPageState extends State<DailyGoalPage>
             const SizedBox(height: 20),
             if (progressPercentage >= 1.0)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.green.shade100,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Row(
+                child:  Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.check_circle, color: Colors.green),
@@ -283,7 +288,7 @@ class _DailyGoalPageState extends State<DailyGoalPage>
                     Text(
                       'أحسنت! أكملت ورد اليوم',
                       style: TextStyle(
-                        color: Colors.green,
+                        color: Theme.of(context).primaryColor,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Amiri',
                       ),
@@ -306,10 +311,7 @@ class _DailyGoalPageState extends State<DailyGoalPage>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
-            colors: [
-              Colors.orange.shade400,
-              Colors.deepOrange.shade400,
-            ],
+            colors: [Colors.orange.shade400, Colors.deepOrange.shade400],
           ),
         ),
         child: Row(
@@ -384,10 +386,7 @@ class _DailyGoalPageState extends State<DailyGoalPage>
                 const Expanded(
                   child: Text(
                     'عدد الصفحات يوميًا:',
-                    style: TextStyle(
-                      fontFamily: 'Amiri',
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontFamily: 'Amiri', fontSize: 16),
                   ),
                 ),
                 Container(
@@ -476,9 +475,11 @@ class _DailyGoalPageState extends State<DailyGoalPage>
                   }).toList(),
                   titlesData: FlTitlesData(
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,

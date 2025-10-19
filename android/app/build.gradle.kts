@@ -15,8 +15,17 @@ if (localPropertiesFile.exists()) {
     }
 }
 
+// تحميل بيانات المفتاح من key.properties
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    FileInputStream(keystorePropertiesFile).use { stream ->
+        keystoreProperties.load(stream)
+    }
+}
+
 android {
-    namespace = "com.example.awab"
+    namespace = "com.onatcipli.awab"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -31,26 +40,38 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.awab"
+        applicationId = "com.onatcipli.awab"
         minSdk = flutter.minSdkVersion
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
-    buildTypes {
-        getByName("release") {
-            signingConfig = signingConfigs.getByName("debug")
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
         }
     }
-    dependencies {
-    // مكتبة desugaring اللي مطلوبة
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
-    // (اختياري) مكتبة كوتلن الأساسية
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
 
+    dependencies {
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    }
 }
 
 flutter {

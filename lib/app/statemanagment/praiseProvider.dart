@@ -1,307 +1,288 @@
-// import 'package:flutter/widgets.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// class Praise with ChangeNotifier {
-//   String alreadyexis = "Erorr : This Praise Already Existing";
-//   int? total;
-//   int num = 0;
-//   List<List<String>>? praiseslist = [];
-
-//   iniPraiseList() async {
-//     for (String temp in intFirstPraiseList) {
-//       addPraise("$temp");
-//     }
-//   }
-
-//   void addPraisesName(String zekr) async {
-//     SharedPreferences  prefs = await SharedPreferences.getInstance();
-//     List<String> praises = await prefs.getStringList("praises")!;
-
-//     if (praises == null) {
-//       praises.add(zekr);
-//       await prefs.setStringList("praises", praises);
-//     } else {
-//       praises.add(zekr);
-//       await prefs.remove("praises");
-//       await prefs.setStringList("praises", praises);
-//     }
-//   }
-
-//   addPraise(String zekr) async {  print(zekr);
-//     SharedPreferences  prefs = await SharedPreferences.getInstance();
-//     List<String>? praises;
-//     List<String> alreadyExistingPraises = [];
-//     if (await prefs.containsKey("praises") == false) {
-
-//       praises!.add(zekr);
-//       await prefs.setStringList("praises", praises);
-//       praiseslist?.add([zekr, "0"]);
-//       await prefs.setStringList(zekr, [zekr, "0"]);
-//     } else {
-//       alreadyExistingPraises = await prefs.getStringList("praises")!;
-//       if (alreadyExistingPraises.contains(zekr)) {
-//         return print(alreadyexis);
-//       } else {
-//         praises = await prefs.getStringList("praises");
-//         await prefs.remove("praises");
-//         await prefs.setStringList("praises", praises!);
-//         praiseslist?.add([zekr, "0"]);
-//         await prefs.setStringList(zekr, [zekr, "0"]);
-//       }
-//       notifyListeners();
-//     }
-//   }
-
-//   countpraise(String zekr) async {
-//     SharedPreferences  prefs = await SharedPreferences.getInstance();
-//     int temp;
-//     temp = 0;
-//     List<String> praise = [];
-//     praise = await prefs.getStringList(zekr)!;
-//     temp = int.parse(praise[1]) + 1;
-//     await prefs.remove(zekr);
-//     await prefs.setStringList(zekr, [zekr, temp.toString(), "0"]);
-//     notifyListeners();
-//     return praise;
-//   }
-
-//   void deletepraise(String key) async {
-//     SharedPreferences  prefs = await SharedPreferences.getInstance();
-//     List<String> listpraises = await prefs.getStringList("praises")!;
-//     listpraises.remove(key);
-//     await prefs.setStringList("praises", listpraises);
-//     praiseslist?.removeWhere((element) => element[0] == key);
-//     notifyListeners();
-//     await prefs.remove(key);
-//   }
-
-//   Future<List<List<String>>> showallpraises() async {
-//     List<String>? temp;
-//     List<String> praisesName = [];
-//     SharedPreferences  prefs = await SharedPreferences.getInstance();
-//     List<List<String>> allpraises = [];
-//     if (await prefs.getStringList("praises") != null) {
-//       praisesName = await prefs.getStringList("praises")!;
-//       // ignore: unnecessary_null_comparison
-//       if (praisesName != null) {
-//         for (var element in praisesName) {
-//           temp = await prefs.getStringList(element)!;
-//           allpraises.add(temp);
-//           temp = null;
-//         }
-//       } else {
-//         print("error get all prises name");
-//       }
-//       praiseslist = null;
-//       praiseslist = allpraises;
-//       notifyListeners();
-//     }
-
-//     return allpraises;
-//   }
-
-//   checkFoundawait prefs(key) async {
-//     SharedPreferences  prefs = await SharedPreferences.getInstance();
-//     print(await prefs.getStringList("praises"));
-//     if (await prefs.containsKey(key)) {
-//       print("yes it is found");
-//     } else {
-//       print("yes it is found");
-//     }
-//   }
-// }
-
+import 'dart:convert';
 import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Praise with ChangeNotifier {
-  String alreadyexis = "Erorr : This Praise Already Existing";
+  String alreadyexis = "Error : This Praise Already Existing";
   int? total;
   int num = 0;
   List<List<String>>? praiseslist = [];
   List countLocMorningPraiseslist = [];
   List countlocNightPraiseslist = [];
+  
+  // القوائم الجديدة من JSON
+  List<String> morningAzkarList = [];
+  List<String> eveningAzkarList = [];
+  List<String> intFirstPraiseList = [];
+  
+  bool isAzkarLoaded = false;
 
-  List<String> intFirstPraiseList = [
-    'سبحان الله وبحمده سبحان الله العظيم',
-    'لا إله إلا أنت سبحانك إني كنتُ من الظَّالمين',
-    'لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير',
-    'اللهم اغفر لي وتب علي، إنك أنت التواب الرحيم',
-    'أستغفر الله العظيم واتوب اليه',
-  ];
-
-  List<String> locMorningPraiseslist = [
-    'أصبَحنا على فطرةِ الإسلامِ وعلى وكلمةِ الإخلاصِ وعلى دينِ نبيِّنا محمَّدٍ صلَّى اللَّهُ عليْهِ وسلَّمَ وعلى ملَّةِ أبينا إبراهيمَ حنيفًا مسلمًا وما كان منَ المشرِكينَ',
-    'رضيتُ باللهِ ربًّا وبالإسلامِ دينًا وبمحمَّدٍ صلَّى اللهُ عليه وسلَّم نبيًّا',
-    'اللّهمّ ما أصبح بي من نعمة أو بأحد من خلقك، فمنك وحدك لا شريك لك، فلك الحمد ولك الشّكر',
-    'بسم الله الذي لا يضرّ مع اسمه شيء في الأرض ولا في السّماء وهو السّميع العليم',
-    'اللّهمّ بك أصبحنا وبك أمسينا، وبك نحيا وبك نموت وإليك النّشور',
-    'أصبحنا وأصبح الملك لله والحمد لله، لا إله إلاّ اللّه وحده لا شريك له، له الملك وله الحمد وهو على كلّ شيء قدير ربّ أسألك خير ما في هذا اليوم وخير ما بعده، وأعوذ بك من شرّ ما في هذا اليوم وشرّ ما بعده، ربّ أعوذ بك من الكسل وسوء الكبر، ربّ أعوذ بك من عذاب في النّار وعذاب في القبر',
-    'اللهم أنت ربي، لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت. أبوء لك بنعمتك علي وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت',
-    'اللهمّ إنّي أسألك العافيةَ في الدُنيا والآخرة، اللهمّ إنّي أسألك العفوَ والعافيةَ في ديني ودُنياي وأهلي ومالي، اللهمّ استر عوراتي وآمن رَوْعَاتي، اللهمّ احفظني مِن بين يَدَيَّ ومِن خلفي وعن يميني وعن شمالي ومن فوقي وأعوذُ بعظمتِك أن أُغتاَل مِن تحتي',
-    'سُبْحَانَ اللهِ وبِحَمْدِهِ',
-    'سُبْحَان الله وبحمده عَدَدَ خَلْقِهِ، ورِضَا نفسه، وزِنَةَ عَرْشِهِ، ومِدَادَ كلماته',
-    'يا حيُّ يا قيومُ برحمتك أستغيثُ، وأَصلِحْ لي شأني كلَّه ولا تَكِلْني إلى نفسي طرفَةَ عَينٍ',
-    'اللهمّ عافِني في بدني، اللهمّ عافني في سمعي، اللهمّ عافني في بصري، لا إله إلّا أنت',
-    'حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هو عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ',
-    'اللَّهُمَّ إنِّي أصبَحتُ أنِّي أُشهِدُك، وأُشهِدُ حَمَلةَ عَرشِكَ، ومَلائِكَتَك، وجميعَ خَلقِكَ: بأنَّك أنتَ اللهُ لا إلهَ إلَّا أنتَ، وَحْدَك لا شريكَ لكَ، وأنَّ مُحمَّدًا عبدُكَ ورسولُكَ',
-    'لا إلَه إلَّا اللهُ وحدَه لا شَريكَ له، له المُلكُ وله الحمدُ يُحيِي ويُميتُ وهو على كلِّ شيءٍ قديرٌ',
-  ];
-  List<String> locNightPraiseslist = [
-    "بسمِ اللهِ الذي لا يَضرُ مع اسمِه شيءٌ في الأرضِ ولا في السماءِ وهو السميعُ العليمِ",
-    "اللَّهمَّ بِكَ أمسَينا وبِكَ أصبَحنا وبِكَ نحيا وبِكَ نموتُ وإليكَ النُّشورُ.",
-    "اللهمَّ إنِّي أعوذُ بك من الهمِّ والحزنِ، والعجزِ والكسلِ، والبُخلِ والجُبنِ، وضَلَعِ الدَّينِ، وغَلَبَةِ الرجالِ.",
-    "يا حيُّ يا قيُّومُ، برَحمتِكَ أستَغيثُ، أصلِح لي شأني كُلَّهُ، ولا تَكِلني إلى نَفسي طرفةَ عينٍ.",
-    "سُبْحَانَ اللهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ",
-    "اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ على نَبِيِّنَا مُحمَّد، فقد جاء في الحديث: مَن صلى عَلَيَّ حين يُصْبِحُ عَشْرًا، وحين يُمْسِي عَشْرًا، أَدْرَكَتْه شفاعتي يومَ القيامةِ",
-    "اللَّهُمَّ إنِّي أمسيتُ أُشهِدُك، وأُشهِدُ حَمَلةَ عَرشِكَ، ومَلائِكَتَك، وجميعَ خَلقِكَ: أنَّكَ أنتَ اللهُ لا إلهَ إلَّا أنتَ، وأنَّ مُحمَّدًا عبدُكَ ورسولُكَ",
-    " سُبْحَانَ اللهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ",
-    "اللَّهُمَّ أنْتَ رَبِّي لا إلَهَ إلَّا أنْتَ، خَلَقْتَنِي وأنا عَبْدُكَ، وأنا علَى عَهْدِكَ ووَعْدِكَ ما اسْتَطَعْتُ، أعُوذُ بكَ مِن شَرِّ ما صَنَعْتُ، أبُوءُ لكَ بنِعْمَتِكَ عَلَيَّ، وأَبُوءُ لكَ بذَنْبِي فاغْفِرْ لِي، فإنَّه لا يَغْفِرُ الذُّنُوبَ إلَّا أنْتَ",
-    "اللهمَ ما أمسى بي من نعمةٍ أو بأحدٍ من خلقك فمنكَ وحدك لا شريكَ، لك فلك الحمد ولك الشكر",
-    "حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم.",
-    "أمسينا على فطرة الإسلام، وعلى كلمة الإخلاص، وعلى دين نبيّنا محمّدٍ صلّى الله عليه وسلم",
-    "بِاسْمِكَ رَبِّي وَضَعْـت جَنْبي، وَبِكَ أَرْفَعـه، فَإِن أَمْسَـكْتَ نَفْسي فارْحَمْها",
-  ];
-
-  count(String zekr, int index) {
-    total = total! + 1;
-    num = num + 1;
-    praiseslist![index][1] = (int.parse(praiseslist![index][1]) + 1).toString();
-    countpraise(zekr);
-    notifyListeners();
-  }
-
-  countpraise2(String zekr) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int temp;
-    temp = 0;
-    List<String> praise = [];
-    praise = prefs.getStringList(zekr)!;
-    temp = int.parse(praise[1]) + 1;
-    prefs.remove(zekr);
-    prefs.setStringList(zekr, [zekr, temp.toString(), "0"]);
-    notifyListeners();
-    return praise;
-  }
-
-  count2(String zekr, int index, bool islocal, ismorn) {
-    total = total! + 1;
-    num = num + 1;
-    if (islocal == false) {
-      praiseslist![index][1] =
-          (int.parse(praiseslist![index][1]) + 1).toString();
-
-      countpraise2(zekr);
-    } else {
-      if (ismorn == true) {
-        countLocMorningPraiseslist[index] =
-            countLocMorningPraiseslist[index] + 1;
-        countPraiseLocal(zekr);
-      } else {
-        countlocNightPraiseslist[index] = countlocNightPraiseslist[index] + 1;
-        countPraiseLocal(zekr);
+  // تحميل الأذكار من JSON
+  Future<void> loadAzkarFromJson() async {
+    if (isAzkarLoaded) return;
+    
+    try {
+      final String response = await rootBundle.loadString('asset/json/azkar.json');
+      final data = json.decode(response);
+      
+      // تحميل أذكار الصباح
+      if (data['أذكار الصباح'] != null) {
+        final morningData = data['أذكار الصباح'];
+        if (morningData is List && morningData.isNotEmpty) {
+          if (morningData[0] is List) {
+            for (var item in morningData[0]) {
+              if (item is Map && item['content'] != null) {
+                String content = item['content'].toString()
+                    .replaceAll('\\n', '')
+                    .replaceAll('\\"', '"')
+                    .replaceAll("'", '')
+                    .trim();
+                if (content.isNotEmpty && content != 'stop') {
+                  morningAzkarList.add(content);
+                }
+              }
+            }
+          }
+        }
       }
+      
+      // تحميل أذكار المساء
+      if (data['أذكار المساء'] != null) {
+        final eveningData = data['أذكار المساء'];
+        if (eveningData is List) {
+          for (var item in eveningData) {
+            if (item is Map && item['content'] != null) {
+              String content = item['content'].toString()
+                  .replaceAll('\\n', '')
+                  .replaceAll('\\"', '"')
+                  .replaceAll("'", '')
+                  .trim();
+              if (content.isNotEmpty) {
+                eveningAzkarList.add(content);
+              }
+            }
+          }
+        }
+      }
+      
+      // تحميل تسابيح
+      if (data['تسابيح'] != null) {
+        final tasabeehData = data['تسابيح'];
+        if (tasabeehData is List) {
+          for (var item in tasabeehData) {
+            if (item is Map && item['content'] != null) {
+              String content = item['content'].toString()
+                  .replaceAll('\\n', '')
+                  .replaceAll('\\"', '"')
+                  .replaceAll("'", '')
+                  .trim();
+              if (content.isNotEmpty && !intFirstPraiseList.contains(content)) {
+                intFirstPraiseList.add(content);
+              }
+            }
+          }
+        }
+      }
+      
+      // إذا كانت التسابيح فارغة، أضف بعض التسابيح الافتراضية
+      if (intFirstPraiseList.isEmpty) {
+        intFirstPraiseList = [
+          'سبحان الله وبحمده سبحان الله العظيم',
+          'لا إله إلا أنت سبحانك إني كنتُ من الظَّالمين',
+          'لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير',
+          'اللهم اغفر لي وتب علي، إنك أنت التواب الرحيم',
+          'أستغفر الله العظيم واتوب اليه',
+        ];
+      }
+      
+      isAzkarLoaded = true;
+      notifyListeners();
+      
+      print('تم تحميل ${morningAzkarList.length} من أذكار الصباح');
+      print('تم تحميل ${eveningAzkarList.length} من أذكار المساء');
+      print('تم تحميل ${intFirstPraiseList.length} من التسابيح');
+    } catch (e) {
+      print('خطأ في تحميل الأذكار: $e');
+      // في حالة الخطأ، استخدم القوائم الافتراضية
+      _loadDefaultLists();
     }
+  }
+
+  void _loadDefaultLists() {
+    intFirstPraiseList = [
+      'سبحان الله وبحمده سبحان الله العظيم',
+      'لا إله إلا أنت سبحانك إني كنتُ من الظَّالمين',
+      'لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير',
+      'اللهم اغفر لي وتب علي، إنك أنت التواب الرحيم',
+      'أستغفر الله العظيم واتوب اليه',
+    ];
+  }
+
+  void count(String zekr, int index) async {
+    try {
+      total = (total ?? 0) + 1;
+      num = num + 1;
+      if (index < praiseslist!.length) {
+        int currentCount = int.tryParse(praiseslist![index][1]) ?? 0;
+        praiseslist![index][1] = (currentCount + 1).toString();
+        await countpraise(zekr);
+      }
+      notifyListeners();
+    } catch (e) {
+      print('خطأ في العد: $e');
+    }
+  }
+
+  Future<List<String>> countpraise2(String zekr) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> praise = prefs.getStringList(zekr) ?? [zekr, "0"];
+      int temp = int.tryParse(praise[1]) ?? 0;
+      temp = temp + 1;
+      await prefs.remove(zekr);
+      await prefs.setStringList(zekr, [zekr, temp.toString(), "0"]);
+      notifyListeners();
+      return praise;
+    } catch (e) {
+      print('خطأ في countpraise2: $e');
+      return [zekr, "0"];
+    }
+  }
+
+  void count2(String zekr, int index, bool islocal, bool ismorn) async {
+    try {
+      total = (total ?? 0) + 1;
+      num = num + 1;
+      
+      if (!islocal) {
+        if (index < praiseslist!.length) {
+          int currentCount = int.tryParse(praiseslist![index][1]) ?? 0;
+          praiseslist![index][1] = (currentCount + 1).toString();
+          await countpraise2(zekr);
+        }
+      } else {
+        if (ismorn) {
+          if (index < countLocMorningPraiseslist.length) {
+            countLocMorningPraiseslist[index] = 
+                (countLocMorningPraiseslist[index] ?? 0) + 1;
+            await countPraiseLocal(zekr);
+          }
+        } else {
+          if (index < countlocNightPraiseslist.length) {
+            countlocNightPraiseslist[index] = 
+                (countlocNightPraiseslist[index] ?? 0) + 1;
+            await countPraiseLocal(zekr);
+          }
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      print('خطأ في count2: $e');
+    }
+  }
+
+  Future<void> initLocpriase() async {
+    await loadAzkarFromJson();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    
+    countLocMorningPraiseslist.clear();
+    countlocNightPraiseslist.clear();
+    
+    for (int i = 0; i < morningAzkarList.length; i++) {
+      int count = prefs.getInt(morningAzkarList[i]) ?? 0;
+      await prefs.setInt(morningAzkarList[i], count);
+      countLocMorningPraiseslist.add(count);
+    }
+    
+    for (int i = 0; i < eveningAzkarList.length; i++) {
+      int count = prefs.getInt(eveningAzkarList[i]) ?? 0;
+      await prefs.setInt(eveningAzkarList[i], count);
+      countlocNightPraiseslist.add(count);
+    }
+    
     notifyListeners();
   }
 
-  void initLocpriase() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // if (await prefs.containsKey(locNightPraiseslist[1]) == false) {
-    for (int i = 0; i < locMorningPraiseslist.length; i++) {
-      await prefs.setInt(locMorningPraiseslist[i], 0);
-      countLocMorningPraiseslist.add(0);
+  Future<void> countPraiseLocal(String zekr) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int temp = prefs.getInt(zekr) ?? 0;
+      await prefs.setInt(zekr, temp + 1);
+      notifyListeners();
+    } catch (e) {
+      print('خطأ في countPraiseLocal: $e');
     }
-    for (int i = 0; i < locNightPraiseslist.length; i++) {
-      await prefs.setInt(locNightPraiseslist[i], 0);
-      countlocNightPraiseslist.add(0);
-    }
-    //}
-  }
-
-  countPraiseLocal(String zekr) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int temp = 0;
-    temp = await prefs.getInt(zekr)!;
-    await prefs.setInt(zekr, temp + 1);
-    print(await prefs.getInt(zekr));
-    notifyListeners();
   }
 
   void addPraisesName(String zekr) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> praises = [];
-    if (await prefs.getStringList("praises") == null) {
+    List<String> praises = prefs.getStringList("praises") ?? [];
+    if (!praises.contains(zekr)) {
       praises.add(zekr);
-      await prefs.setStringList("praises", praises);
-    } else {
-      praises = await prefs.getStringList("praises")!;
-      praises.add(zekr);
-      await prefs.remove("praises");
       await prefs.setStringList("praises", praises);
     }
   }
 
-  addPraise(String zekr) async {
+  Future<void> addPraise(String zekr) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> alreadyExistingPraises = [];
-    if (await prefs.containsKey("praises") == false) {
-      addPraisesName(zekr);
-      praiseslist?.add([zekr, "0"]);
-      await prefs.setStringList(zekr, [zekr, "0"]);
-    } else {
-      alreadyExistingPraises = await prefs.getStringList("praises")!;
-      if (alreadyExistingPraises.contains(zekr)) {
-        return print(alreadyexis);
-      } else {
-        addPraisesName(zekr);
-        praiseslist?.add([zekr, "0"]);
-        await prefs.setStringList(zekr, [zekr, "0"]);
-      }
-      notifyListeners();
+    List<String> alreadyExistingPraises = prefs.getStringList("praises") ?? [];
+    
+    if (alreadyExistingPraises.contains(zekr)) {
+      print(alreadyexis);
+      return;
     }
+    
+    addPraisesName(zekr);
+    praiseslist?.add([zekr, "0"]);
+    await prefs.setStringList(zekr, [zekr, "0"]);
+    notifyListeners();
   }
 
-  void initsomeprefs() async {
+  Future<void> initsomeprefs() async {
+    await loadAzkarFromJson();
     for (int i = 0; i < intFirstPraiseList.length; i++) {
       await addPraise(intFirstPraiseList[i]);
     }
   }
 
-  void getLocpriase() async {
+  Future<void> getLocpriase() async {
+    await loadAzkarFromJson();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    for (int i = 0; i < locMorningPraiseslist.length; i++) {
-      countLocMorningPraiseslist
-          .add(await prefs.getInt(locMorningPraiseslist[i]));
+    
+    countLocMorningPraiseslist.clear();
+    countlocNightPraiseslist.clear();
+    
+    for (int i = 0; i < morningAzkarList.length; i++) {
+      countLocMorningPraiseslist.add(prefs.getInt(morningAzkarList[i]) ?? 0);
     }
-    for (int i = 0; i < locNightPraiseslist.length; i++) {
-      countlocNightPraiseslist.add(await prefs.getInt(locNightPraiseslist[i]));
+    
+    for (int i = 0; i < eveningAzkarList.length; i++) {
+      countlocNightPraiseslist.add(prefs.getInt(eveningAzkarList[i]) ?? 0);
     }
-    print("**************************************");
-
-    print(countLocMorningPraiseslist);
-    print("**************************************");
-
-    print(countlocNightPraiseslist);
-    print("**************************************");
+    
+    notifyListeners();
   }
 
-  countpraise(String zekr) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int temp;
-    temp = 0;
-    List<String> praise = [];
-    praise = prefs.getStringList(zekr)!;
-    temp = int.parse(praise[1]) + 1;
-    prefs.remove(zekr);
-    prefs.setStringList(zekr, [zekr, temp.toString(), "0"]);
-    notifyListeners();
-    return praise;
+  Future<List<String>> countpraise(String zekr) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> praise = prefs.getStringList(zekr) ?? [zekr, "0"];
+      int temp = int.tryParse(praise[1]) ?? 0;
+      temp = temp + 1;
+      await prefs.remove(zekr);
+      await prefs.setStringList(zekr, [zekr, temp.toString(), "0"]);
+      notifyListeners();
+      return praise;
+    } catch (e) {
+      print('خطأ في countpraise: $e');
+      return [zekr, "0"];
+    }
   }
 
   void deletepraise(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> listpraises = await prefs.getStringList("praises")!;
+    List<String> listpraises = prefs.getStringList("praises") ?? [];
     listpraises.remove(key);
     await prefs.setStringList("praises", listpraises);
     praiseslist?.removeWhere((element) => element[0] == key);
@@ -310,56 +291,60 @@ class Praise with ChangeNotifier {
   }
 
   Future<List<List<String>>> showallpraises() async {
-    List<String>? temp;
-    List<String> praisesName = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> praisesName = prefs.getStringList("praises") ?? [];
     List<List<String>> allpraises = [];
-    if (await prefs.getStringList("praises") != null) {
-      praisesName = await prefs.getStringList("praises")!;
-      // ignore: unnecessary_null_comparison
-      if (praisesName != null) {
-        for (var element in praisesName) {
-          temp = await prefs.getStringList(element)!;
-          allpraises.add(temp);
-          temp = null;
-        }
-      } else {
-        print("error get all prises name");
-      }
-      praiseslist = null;
-      praiseslist = allpraises;
-      notifyListeners();
+    
+    for (var element in praisesName) {
+      List<String> temp = prefs.getStringList(element) ?? [element, "0"];
+      allpraises.add(temp);
     }
-
+    
+    praiseslist = allpraises;
+    notifyListeners();
     return allpraises;
   }
 
   void reset2(String zekr, int index, bool isLocal, bool ismorning) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (isLocal == false) {
-      await prefs.setStringList(zekr, [zekr, "0"]);
-      praiseslist![index][1] = (0).toString();
-    } else {
-      await prefs.setInt(zekr, 0);
-      if (ismorning == true) {
-        countLocMorningPraiseslist[index] = 0;
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (!isLocal) {
+        await prefs.setStringList(zekr, [zekr, "0"]);
+        if (index < praiseslist!.length) {
+          praiseslist![index][1] = "0";
+        }
       } else {
-        countlocNightPraiseslist[index] = 0;
+        await prefs.setInt(zekr, 0);
+        if (ismorning) {
+          if (index < countLocMorningPraiseslist.length) {
+            countLocMorningPraiseslist[index] = 0;
+          }
+        } else {
+          if (index < countlocNightPraiseslist.length) {
+            countlocNightPraiseslist[index] = 0;
+          }
+        }
       }
+      num = 0;
+      total = 0;
+      notifyListeners();
+    } catch (e) {
+      print('خطأ في reset2: $e');
     }
-    num = 0;
-    total = 0;
-    notifyListeners();
   }
 
   void reset(String zekr, int index) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(zekr, [zekr, "0"]);
-    praiseslist![index][1] = (0).toString();
-    num = 0;
-    total = 0;
-    notifyListeners();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(zekr, [zekr, "0"]);
+      if (index < praiseslist!.length) {
+        praiseslist![index][1] = "0";
+      }
+      num = 0;
+      total = 0;
+      notifyListeners();
+    } catch (e) {
+      print('خطأ في reset: $e');
+    }
   }
 }
-
-//---------------------------------------------------------------------------------
